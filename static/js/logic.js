@@ -528,10 +528,10 @@ function twenty0neGuns() {
 $(".button").on('click', flyaway());
 function flyaway(where) {
 
-  var dest = [[33.7490, -84.3880], [34.12969738165099, -84.15845427143529]];
-  myMap.flyTo(dest[where], 12, {
+  var dest = [[33.6407, -84.4277], [34.12969738165099, -84.15845427143529]];
+  myMap.flyTo(dest[where], 15, {
     animate: true,
-    duration: 5,
+    duration: 10,
     easeLinearity: 0.25,
   });
 
