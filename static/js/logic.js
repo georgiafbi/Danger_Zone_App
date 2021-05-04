@@ -17,7 +17,7 @@ let myMap;
 
 
 // Create the createMap function
-function createMap(crimeSpots, heatMap, geoChicagoMap,geoGaMap) {
+function createMap(crimeSpots, heatMap, geoChicagoMap, geoGaMap) {
   // Create the tile layer that will be the background of our map
   var satellitemap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
     attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
@@ -69,11 +69,11 @@ function createMap(crimeSpots, heatMap, geoChicagoMap,geoGaMap) {
   myMap = L.map("map", {
     center: chicagoCoords,
     zoom: zoomLevel,
-    layers: [streetmap, geoChicagoMap]
+    layers: [streetmap, geoChicagoMap,heatMap],
   });
   // Create a layer control, pass in the baseMaps and overlayMaps. Add the layer control to the map
   L.control.layers(baseMaps, overlayMaps, {
-    collapsed: false
+    collapsed: true
   }).addTo(myMap);
 }
 // console.log(chicagoGeoJsonData);
@@ -103,11 +103,11 @@ function createZipCodeZones(zipCodeData, zipp) {
 
   // create geojsonLayer Object. pass Chicago Zip Code Data and options as the parameter
   // add the geojson layer to the map
-  if (zipp==="ZIP"){
+  if (zipp === "ZIP") {
     geojsonLayerChicago = L.geoJSON(zipCodeData, options);
   }
-  else if(zipp==="ZCTA5CE10"){
-    geojsonLayerGeorgia =L.geoJSON(zipCodeData, options);
+  else if (zipp === "ZCTA5CE10") {
+    geojsonLayerGeorgia = L.geoJSON(zipCodeData, options);
   }
   //geojsonLayer.addTo(myMap);
   // define the filter object
@@ -144,16 +144,20 @@ function createZipCodeZones(zipCodeData, zipp) {
 
     let popuptext;
     if (feature.properties[zipp] === "6761") {
-      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip">${"60607"}</h2>`;
+      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip1">${"60607"}</h2>`;
     }
     else if (feature.properties[zipp] === "12311") {
-      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip">${"60611"}</h2>`;
+      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip2">${"60611"}</h2>`;
     }
     else if (feature.properties[zipp] === "60666") {
-      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip">${"60018"}</h2><button id="atl-btn">Fly to Atlanta</button><button id= "arun-btn">Fly to Arun's</button>`;
+      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip3">${"60018"}</h2><button id="trvl-btn">Fly to Atlanta</button><button id= "arun-btn">Fly to Arun's</button>`;
+    }
+    else if (feature.properties[zipp] === "30337") {
+      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip4">${"30337"}</h2><button id="trvl-btn">Fly to Chicago</button><button id= "arun-btn">Fly to Arun's</button>`;
+
     }
     else {
-      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip">${feature.properties[zipp]}</h2>`;
+      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip5">${feature.properties[zipp]}</h2>`;
     }
     layer.bindPopup(popuptext);
 
@@ -198,10 +202,16 @@ function createZipCodeZones(zipCodeData, zipp) {
 
       updateChartData();
       upDateChartTitle();
-      if (graph_zip === "60018") {
-        atlBtn = L.DomUtil.get('atl-btn');
-        L.DomEvent.addListener(atlBtn, 'click', function () {
-          flyaway(0);
+      if (graph_zip == "60018" || graph_zip == "30337") {
+
+        trvlBtn = L.DomUtil.get('trvl-btn');
+        L.DomEvent.addListener(trvlBtn, 'click', function () {
+          if (graph_zip === "60018") {
+            flyaway(0);
+          }
+          else {
+            flyaway(2);
+          }
         });
         arunBtn = L.DomUtil.get('arun-btn');
         L.DomEvent.addListener(arunBtn, 'click', function () {
@@ -277,7 +287,7 @@ function createMarker(response, geoJsonChicago, geoJsonGeorgia) {
 
   createZipCodeZones(geoJsonChicago, "ZIP");
   createZipCodeZones(geoJsonGeorgia, "ZCTA5CE10")
-  createMap(marker_layer, heat_layer, geojsonLayerChicago,geojsonLayerGeorgia);
+  createMap(marker_layer, heat_layer, geojsonLayerChicago, geojsonLayerGeorgia);
   createGraphs();
 
 
@@ -286,20 +296,20 @@ function createMarker(response, geoJsonChicago, geoJsonGeorgia) {
 function getIcon(key) {
   // Initialize an object containing icons for each layer group
   //console.log(key);
-  if (key==="AUTO THEFT"){
-    key="MOTOR VEHICLE THEFT"
-  }
-  else if (key==='MANSLAUGHTER'){
-    key='HOMICIDE'
-  }
-  else if(key==='LARCENY-FROM VEHICLE' || 'LARCENY-NON VEHICLE' ){
-    key="THEFT"
-  }
-  else if(key==='AGG ASSAULT'){
-    key="ASSAULT"
-  }
   let icons = {
-    "THEFT": L.ExtraMarkers.icon({
+    "AUTO THEFT": L.ExtraMarkers.icon({
+      icon: "ion-model-s",
+      iconColor: "white",
+      markerColor: "yellow",
+      shape: "circle",
+    }),
+    "LARCENY-NON VEHICLE": L.Ext1raMarkers.icon({
+      icon: "ion-sad-outline",
+      iconColor: "white",
+      markerColor: "orange",
+      shape: "penta",
+    }),
+    "THEFT": L.Ext1raMarkers.icon({
       icon: "ion-sad-outline",
       iconColor: "white",
       markerColor: "blue",
@@ -329,17 +339,29 @@ function getIcon(key) {
       markerColor: "yellow",
       shape: "circle",
     }),
+    "LARCENY-FROM VEHICLE": L.ExtraMarkers.icon({
+      icon: "ion-ios-home-outline",
+      iconColor: "violet",
+      markerColor: "white",
+      shape: "square",
+    }),
     "BURGLARY": L.ExtraMarkers.icon({
       icon: "ion-ios-home-outline",
       iconColor: "white",
       markerColor: "violet",
       shape: "star",
     }),
-    "OTHER OFFENSE": L.ExtraMarkers.icon({
+    "AGG ASSAULT": L.ExtraMarkers.icon({
       icon: "ion-help-circled",
       iconColor: "white",
       markerColor: "grey",
       shape: "circle",
+    }),
+    'AGG ASSAULT': L.ExtraMarkers.icon({
+      icon: "ion-hammer",
+      iconColor: "white",
+      markerColor: "black",
+      shape: "star",
     }),
     "ROBBERY": L.ExtraMarkers.icon({
       icon: "ion-cash",
@@ -373,9 +395,9 @@ function getIcon(key) {
     }),
     "ASSAULT": L.ExtraMarkers.icon({
       icon: "ion-hammer",
-      iconColor: "black",
-      markerColor: "white",
-      shape: "penta",
+      iconColor: "white",
+      markerColor: "black",
+      shape: "star",
     }),
     "DECEPTIVE PRACTICE": L.ExtraMarkers.icon({
       icon: "ion-android-contacts",
@@ -544,7 +566,7 @@ function data_for_graph() {
 }
 function twenty0neGuns() {
   var crimeColors = [];
-  for (var i = 0; i < 21; i++) {
+  for (var i = 0; i < unique_crime.length; i++) {
     crimeColors.push(color());
   }
   return crimeColors;
@@ -552,8 +574,8 @@ function twenty0neGuns() {
 $(".button").on('click', flyaway());
 function flyaway(where) {
 
-  var dest = [[33.6407, -84.4277], [34.12969738165099, -84.15845427143529]];
-  myMap.flyTo(dest[where], 15, {
+  var dest = [[33.6407, -84.4277], [34.12969738165099, -84.15845427143529], [41.9803, -87.9090]];
+  myMap.flyTo(dest[where], 10, {
     animate: true,
     duration: 10,
     easeLinearity: 0.25,
