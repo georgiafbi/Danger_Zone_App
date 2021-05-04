@@ -69,7 +69,7 @@ function createMap(crimeSpots, heatMap, geoChicagoMap, geoGaMap) {
   myMap = L.map("map", {
     center: chicagoCoords,
     zoom: zoomLevel,
-    layers: [streetmap, geoChicagoMap,heatMap],
+    layers: [streetmap, geoChicagoMap]
   });
   // Create a layer control, pass in the baseMaps and overlayMaps. Add the layer control to the map
   L.control.layers(baseMaps, overlayMaps, {
@@ -295,7 +295,8 @@ function createMarker(response, geoJsonChicago, geoJsonGeorgia) {
 /*****************************************************************/
 function getIcon(key) {
   // Initialize an object containing icons for each layer group
-  //console.log(key);
+  console.log(key);
+
   let icons = {
     "AUTO THEFT": L.ExtraMarkers.icon({
       icon: "ion-model-s",
@@ -303,13 +304,13 @@ function getIcon(key) {
       markerColor: "yellow",
       shape: "circle",
     }),
-    "LARCENY-NON VEHICLE": L.Ext1raMarkers.icon({
+    "LARCENY-NON VEHICLE": L.ExtraMarkers.icon({
       icon: "ion-sad-outline",
       iconColor: "white",
       markerColor: "orange",
       shape: "penta",
     }),
-    "THEFT": L.Ext1raMarkers.icon({
+    "THEFT": L.ExtraMarkers.icon({
       icon: "ion-sad-outline",
       iconColor: "white",
       markerColor: "blue",
@@ -341,8 +342,8 @@ function getIcon(key) {
     }),
     "LARCENY-FROM VEHICLE": L.ExtraMarkers.icon({
       icon: "ion-ios-home-outline",
-      iconColor: "violet",
-      markerColor: "white",
+      iconColor: "white",
+      markerColor: "green",
       shape: "square",
     }),
     "BURGLARY": L.ExtraMarkers.icon({
@@ -351,17 +352,17 @@ function getIcon(key) {
       markerColor: "violet",
       shape: "star",
     }),
-    "AGG ASSAULT": L.ExtraMarkers.icon({
+    "OTHER OFFENSE": L.ExtraMarkers.icon({
       icon: "ion-help-circled",
       iconColor: "white",
       markerColor: "grey",
       shape: "circle",
     }),
-    'AGG ASSAULT': L.ExtraMarkers.icon({
-      icon: "ion-hammer",
+    "AGG ASSAULT": L.ExtraMarkers.icon({
+      icon: "ion-help-circled",
       iconColor: "white",
-      markerColor: "black",
-      shape: "star",
+      markerColor: "grey",
+      shape: "circle",
     }),
     "ROBBERY": L.ExtraMarkers.icon({
       icon: "ion-cash",
@@ -395,9 +396,9 @@ function getIcon(key) {
     }),
     "ASSAULT": L.ExtraMarkers.icon({
       icon: "ion-hammer",
-      iconColor: "white",
-      markerColor: "black",
-      shape: "star",
+      iconColor: "black",
+      markerColor: "white",
+      shape: "penta",
     }),
     "DECEPTIVE PRACTICE": L.ExtraMarkers.icon({
       icon: "ion-android-contacts",
@@ -575,9 +576,9 @@ $(".button").on('click', flyaway());
 function flyaway(where) {
 
   var dest = [[33.6407, -84.4277], [34.12969738165099, -84.15845427143529], [41.9803, -87.9090]];
-  myMap.flyTo(dest[where], 10, {
+  myMap.flyTo(dest[where], 13.5, {
     animate: true,
-    duration: 10,
+    duration: 5,
     easeLinearity: 0.25,
   });
 
