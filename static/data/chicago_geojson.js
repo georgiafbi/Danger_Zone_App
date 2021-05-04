@@ -1,6 +1,6 @@
 //raw chicao zip code geojson data link
 const chicagoGeoJsonData="https://raw.githubusercontent.com/smartchicago/chicago-atlas/master/db/import/zipcodes.geojson";
-
+const georgiaGeoJsonData="https://raw.githubusercontent.com/OpenDataDE/State-zip-code-GeoJSON/master/ga_georgia_zip_codes_geo.min.json"
 
 
 

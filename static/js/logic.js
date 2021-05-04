@@ -2,7 +2,8 @@ var zoomLevel = 10;
 var chicagoCoords = [41.8781, -87.6232]
 // Creating map object
 let newMarker = [];
-let geojsonLayer;
+let geojsonLayerChicago;
+let geojsonLayerGeorgia;
 let unique_crime;
 let graph_zip = "60612"
 // console.log(crimeZip);
@@ -16,7 +17,7 @@ let myMap;
 
 
 // Create the createMap function
-function createMap(crimeSpots, heatMap, geoMap) {
+function createMap(crimeSpots, heatMap, geoChicagoMap,geoGaMap) {
   // Create the tile layer that will be the background of our map
   var satellitemap = L.tileLayer("https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}", {
     attribution: "Map data &copy; <a href=\"https://www.openstreetmap.org/\">OpenStreetMap</a> contributors, <a href=\"https://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA</a>, Imagery © <a href=\"https://www.mapbox.com/\">Mapbox</a>",
@@ -60,14 +61,15 @@ function createMap(crimeSpots, heatMap, geoMap) {
   var overlayMaps = {
     "Crime Locations": crimeSpots,
     "Crime Heat Map": heatMap,
-    "Zip Code Zones": geoMap
+    "Zip Code Zones Chicago": geoChicagoMap,
+    "Zip Code Zones Atlanta": geoGaMap,
   };
   // Create the map object with options
   // Define a map object
   myMap = L.map("map", {
     center: chicagoCoords,
     zoom: zoomLevel,
-    layers: [streetmap, geoMap]
+    layers: [streetmap, geoChicagoMap]
   });
   // Create a layer control, pass in the baseMaps and overlayMaps. Add the layer control to the map
   L.control.layers(baseMaps, overlayMaps, {
@@ -79,9 +81,9 @@ function createMap(crimeSpots, heatMap, geoMap) {
 // call createZipCodeZones passing the data that is read from chicago_geojson.js file
 // d3.selectAll("#button").on("click",flyaway());
 
-d3.json(chicagoGeoJsonData).then(geoData => {
-
-  createMarker(crimeZip, geoData);
+d3.json(chicagoGeoJsonData).then(geoChicagoData => {
+  d3.json(georgiaGeoJsonData).then(geoGaData =>
+    createMarker(crimeZip, geoChicagoData, geoGaData))
 
 
 });
@@ -89,7 +91,7 @@ d3.json(chicagoGeoJsonData).then(geoData => {
 
 // define createZipCodeZones function. The function takes one parameter.
 // name the parameter zipCodeData
-function createZipCodeZones(zipCodeData) {
+function createZipCodeZones(zipCodeData, zipp) {
   // create an object named options.
   // specify the callback for style, filter, and onEachFeature
 
@@ -101,13 +103,21 @@ function createZipCodeZones(zipCodeData) {
 
   // create geojsonLayer Object. pass Chicago Zip Code Data and options as the parameter
   // add the geojson layer to the map
-  geojsonLayer = L.geoJSON(zipCodeData, options);
+  if (zipp==="ZIP"){
+    geojsonLayerChicago = L.geoJSON(zipCodeData, options);
+  }
+  else if(zipp==="ZCTA5CE10"){
+    geojsonLayerGeorgia =L.geoJSON(zipCodeData, options);
+  }
   //geojsonLayer.addTo(myMap);
   // define the filter object
   /*************************************************/
 
   function onFilter(geoJsonFeature) {
-    if (geoJsonFeature.properties.ZIP) {
+    if (geoJsonFeature.properties[zipp]) {
+      return true;
+    }
+    if (geoJsonFeature.properties[zipp]) {
       return true;
     }
     return true;
@@ -120,7 +130,7 @@ function createZipCodeZones(zipCodeData) {
       color: "red",
       fillOpacity: 0.3,
       weight: 1.5,
-      fillColor: color(geoJsonFeature.properties.ZIP),
+      fillColor: color(geoJsonFeature.properties[zipp]),
     };
     //set the fillcolor value based on the ZIP Code
     return style;
@@ -133,17 +143,17 @@ function createZipCodeZones(zipCodeData) {
     //console.log(feature)
 
     let popuptext;
-    if (feature.properties.ZIP === "6761") {
+    if (feature.properties[zipp] === "6761") {
       popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip">${"60607"}</h2>`;
     }
-    else if (feature.properties.ZIP === "12311") {
+    else if (feature.properties[zipp] === "12311") {
       popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip">${"60611"}</h2>`;
     }
-    else if (feature.properties.ZIP === "60666") {
+    else if (feature.properties[zipp] === "60666") {
       popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip">${"60018"}</h2><button id="atl-btn">Fly to Atlanta</button><button id= "arun-btn">Fly to Arun's</button>`;
     }
     else {
-      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip">${feature.properties.ZIP}</h2>`;
+      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip">${feature.properties[zipp]}</h2>`;
     }
     layer.bindPopup(popuptext);
 
@@ -184,8 +194,8 @@ function createZipCodeZones(zipCodeData) {
       layer = event.target;
       var popup = event.target.getPopup();
       var content = popup.getContent();
-      graph_zip=extractContent(content);
-      
+      graph_zip = extractContent(content);
+
       updateChartData();
       upDateChartTitle();
       if (graph_zip === "60018") {
@@ -205,7 +215,7 @@ function createZipCodeZones(zipCodeData) {
   /*********************************************************/
 }
 // Create the createMarkers function
-function createMarker(response, geoJsonData) {
+function createMarker(response, geoJsonChicago, geoJsonGeorgia) {
   //console.log(d3.select("#zip").text());
 
   var crimeMarkers = [];
@@ -220,12 +230,14 @@ function createMarker(response, geoJsonData) {
       // if (r.case_number == "JD473872" || "JD473929" ||  "JD474123"){
       //   console.log(r.zip_code);
       // }
-      var arrest = "";
+      var arrest = "Not in the Data";
       if (r.arrest) {
-        arrest = "Yes"
-      }
-      else {
-        arrest = "No"
+        if (r.arrest === 1) {
+          arrest = "Yes"
+        }
+        else if (r.arrest === 0) {
+          arrest = "No"
+        }
       }
 
       console.log(r.zip_code)
@@ -237,8 +249,7 @@ function createMarker(response, geoJsonData) {
         icon: getIcon(r.primary_type)
 
 
-      }).bindPopup(`<h6>Case Number: ${r.case_number}</h6>
-        <h3 style="color:red;">Crime: ${r.primary_type}</h3>
+      }).bindPopup(`<h4>ID#:${r.id}</h4><h3 style="color:red;">Crime: ${r.primary_type}</h3>
         <h4>Description: ${r.description}<h4>
         <h4>Block: ${r.block}</h4>
         <h4>Location Description: ${r.location_description}</h4>
@@ -264,8 +275,9 @@ function createMarker(response, geoJsonData) {
   unique_crime = primary_crime.filter((it, i, ar) => ar.indexOf(it) === i);
   console.log(unique_crime);
 
-  createZipCodeZones(geoJsonData);
-  createMap(marker_layer, heat_layer, geojsonLayer);
+  createZipCodeZones(geoJsonChicago, "ZIP");
+  createZipCodeZones(geoJsonGeorgia, "ZCTA5CE10")
+  createMap(marker_layer, heat_layer, geojsonLayerChicago,geojsonLayerGeorgia);
   createGraphs();
 
 
@@ -274,6 +286,18 @@ function createMarker(response, geoJsonData) {
 function getIcon(key) {
   // Initialize an object containing icons for each layer group
   //console.log(key);
+  if (key==="AUTO THEFT"){
+    key="MOTOR VEHICLE THEFT"
+  }
+  else if (key==='MANSLAUGHTER'){
+    key='HOMICIDE'
+  }
+  else if(key==='LARCENY-FROM VEHICLE' || 'LARCENY-NON VEHICLE' ){
+    key="THEFT"
+  }
+  else if(key==='AGG ASSAULT'){
+    key="ASSAULT"
+  }
   let icons = {
     "THEFT": L.ExtraMarkers.icon({
       icon: "ion-sad-outline",
@@ -538,7 +562,7 @@ function flyaway(where) {
 }
 function extractContent(html) {
 
-  var contentString=new DOMParser().parseFromString(html, "text/html").documentElement.textContent;
+  var contentString = new DOMParser().parseFromString(html, "text/html").documentElement.textContent;
   var numb = contentString.match(/\d/g);
   return numb.join("");
 

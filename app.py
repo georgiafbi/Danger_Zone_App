@@ -14,17 +14,24 @@ app = Flask(__name__)
 # Census API Key
 
 # Create engine using the `demographics.sqlite` database file
-def chicago_crime_dict():
+def crime_dict():
     pword = 'Baggins89'
     connection_string = f"postgres:{pword}@localhost:5432/crime_db"
     connected_engine=create_engine(f'postgresql://{connection_string}').connect()
 
     chicago_crime_df=pd.read_sql_table('chicago',connected_engine).set_index('id')
+    atlanta_crime_df=pd.read_sql_table('atlanta',connected_engine).set_index('id')
 
-
-    json_result=chicago_crime_df.to_json(orient="table")
-    parsed=json.loads(json_result)
-    return parsed['data']
+    json_result_chicago=chicago_crime_df.to_json(orient="table")
+    json_result_atlanta=atlanta_crime_df.to_json(orient="table")
+    chicagoDict=json.loads(json_result_chicago)['data']
+    atlDict=json.loads(json_result_atlanta)['data']
+    allCrimeDict=[]
+    for d in atlDict:
+        allCrimeDict.append(d)
+    for c in chicagoDict:
+        allCrimeDict.append(c)
+    return allCrimeDict
 
 @app.route("/")
 def home():
@@ -32,7 +39,7 @@ def home():
 
     # Return template and data
 
-    return render_template("index.html", data=chicago_crime_dict(), imglink="https://news.wttw.com/sites/default/files/field/image/FBICrimeData_0925.jpg")
+    return render_template("index.html", data=crime_dict(), imglink="https://news.wttw.com/sites/default/files/field/image/FBICrimeData_0925.jpg")
 
 
 if __name__ == "__main__":
