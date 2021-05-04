@@ -182,7 +182,10 @@ function createZipCodeZones(zipCodeData) {
       //console.log(event.target);
 
       layer = event.target;
-      graph_zip = d3.select("#zip").text()
+      var popup = event.target.getPopup();
+      var content = popup.getContent();
+      graph_zip=extractContent(content);
+      
       updateChartData();
       upDateChartTitle();
       if (graph_zip === "60018") {
@@ -531,6 +534,13 @@ function flyaway(where) {
     duration: 5,
     easeLinearity: 0.25,
   });
+
+}
+function extractContent(html) {
+
+  var contentString=new DOMParser().parseFromString(html, "text/html").documentElement.textContent;
+  var numb = contentString.match(/\d/g);
+  return numb.join("");
 
 }
 
