@@ -1,7 +1,7 @@
-body {
+/* body {
   padding: 0;
   margin: 0;
-}
+} */
 
 /* #map{
  
@@ -15,22 +15,26 @@ body {
   height:850px;
 
 } */
-canvas{
+/* canvas{
   padding-top: 50px;
   margin-top: 30px;
-}
+} */
 
-body {
+/* body {
   padding: 0;
   margin: 0;
-}
-#map{
+} */
+/* #map{
   position: absolute;
   top: 10%;
   bottom: 100%;
   width: 85%;
   height: 500px;
-}
+} */
+
+/* #map{
+  height: 1000px;
+} */
 .leaflet-popup-content {
   text-align: center;
 }

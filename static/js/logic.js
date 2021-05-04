@@ -5,11 +5,16 @@ let newMarker = [];
 let geojsonLayer;
 let unique_crime;
 let graph_zip = "60612"
-
-console.log(crimeZip);
+// console.log(crimeZip);
 
 let crimeBarChart;
 let crimePieChart;
+var atlBtn;
+var arunBtn;
+let myMap;
+
+
+
 // Create the createMap function
 function createMap(crimeSpots, heatMap, geoMap) {
   // Create the tile layer that will be the background of our map
@@ -59,23 +64,28 @@ function createMap(crimeSpots, heatMap, geoMap) {
   };
   // Create the map object with options
   // Define a map object
-  var myMap = L.map("map", {
+  myMap = L.map("map", {
     center: chicagoCoords,
     zoom: zoomLevel,
-    layers: [streetmap, heatMap]
+    layers: [streetmap, geoMap]
   });
   // Create a layer control, pass in the baseMaps and overlayMaps. Add the layer control to the map
   L.control.layers(baseMaps, overlayMaps, {
-    collapsed: true
+    collapsed: false
   }).addTo(myMap);
 }
 // console.log(chicagoGeoJsonData);
 //write code to read the chicago_geojson.js file using d3.
 // call createZipCodeZones passing the data that is read from chicago_geojson.js file
-d3.json(chicagoCrimeAPIData).then((crimeData) => {
+// d3.selectAll("#button").on("click",flyaway());
 
-  d3.json(chicagoGeoJsonData).then(geoData => createMarker(crimeData, geoData));
+d3.json(chicagoGeoJsonData).then(geoData => {
+
+  createMarker(crimeZip, geoData);
+
+
 });
+
 
 // define createZipCodeZones function. The function takes one parameter.
 // name the parameter zipCodeData
@@ -123,17 +133,22 @@ function createZipCodeZones(zipCodeData) {
     //console.log(feature)
 
     let popuptext;
-    if(feature.properties.ZIP==="6761"){
-      popuptext= `<h3>ZIP CODE</h3><hr><h2 id="zip">${"60607"}</h2>`;
+    if (feature.properties.ZIP === "6761") {
+      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip">${"60607"}</h2>`;
     }
-    else if (feature.properties.ZIP==="12311"){
-      popuptext=`<h3>ZIP CODE</h3><hr><h2 id="zip">${"60611"}</h2>`;
+    else if (feature.properties.ZIP === "12311") {
+      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip">${"60611"}</h2>`;
     }
-    else{
-      popuptext=`<h3>ZIP CODE</h3><hr><h2 id="zip">${feature.properties.ZIP}</h2>`;
+    else if (feature.properties.ZIP === "60666") {
+      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip">${"60018"}</h2><button id="atl-btn">Fly to Atlanta</button><button id= "arun-btn">Fly to Arun's</button>`;
+    }
+    else {
+      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip">${feature.properties.ZIP}</h2>`;
     }
     layer.bindPopup(popuptext);
-    //console.log(layer);
+
+
+    // //console.log(layer);
     /*********************************************************/
     //console.log(feature.properties.ZIP);
     layer.on({
@@ -170,7 +185,16 @@ function createZipCodeZones(zipCodeData) {
       graph_zip = d3.select("#zip").text()
       updateChartData();
       upDateChartTitle();
-      
+      if (graph_zip === "60018") {
+        atlBtn = L.DomUtil.get('atl-btn');
+        L.DomEvent.addListener(atlBtn, 'click', function () {
+          flyaway(0);
+        });
+        arunBtn = L.DomUtil.get('arun-btn');
+        L.DomEvent.addListener(arunBtn, 'click', function () {
+          flyaway(1);
+        });
+      }
 
     }
   }
@@ -187,10 +211,12 @@ function createMarker(response, geoJsonData) {
 
   response.forEach((r) => {
     try {
-      var lat = r.latitude;
-      var long = r.longitude;
-
-
+      let lat = r.latitude;
+      let long = r.longitude;
+      let latlng = [lat, long];
+      // if (r.case_number == "JD473872" || "JD473929" ||  "JD474123"){
+      //   console.log(r.zip_code);
+      // }
       var arrest = "";
       if (r.arrest) {
         arrest = "Yes"
@@ -198,8 +224,10 @@ function createMarker(response, geoJsonData) {
       else {
         arrest = "No"
       }
+
+      console.log(r.zip_code)
       primary_crime.push(r.primary_type);
-      crimeMarkers.push(L.marker([lat, long], {
+      crimeMarkers.push(L.marker(latlng, {
         draggable: false,
         title: r.primary_type,
         riseOnHover: true,
@@ -213,7 +241,7 @@ function createMarker(response, geoJsonData) {
         <h4>Location Description: ${r.location_description}</h4>
         <h4>Arrest: ${arrest}</h4>`)
       );
-      heatArray.push([lat, long]);
+      heatArray.push(latlng);
 
     }
     catch (e) {
@@ -224,17 +252,19 @@ function createMarker(response, geoJsonData) {
   var heat_layer = L.heatLayer(heatArray, {
     radius: 13,
     maxZoom: 23,
-    max: 1,
     blur: 5,
-    minOpacity: 0.25,
+    minOpacity: 0.4,
     gradient: { 0.4: 'green', 0.65: 'yellow', 1: 'red' }
   });
   var marker_layer = L.layerGroup(crimeMarkers);
+  console.log(primary_crime);
   unique_crime = primary_crime.filter((it, i, ar) => ar.indexOf(it) === i);
+  console.log(unique_crime);
 
-  createGraphs();
   createZipCodeZones(geoJsonData);
   createMap(marker_layer, heat_layer, geojsonLayer);
+  createGraphs();
+
 
 }
 /*****************************************************************/
@@ -387,9 +417,9 @@ function color(ZIP) {
 
 /*********************************************************/
 function createGraphs() {
-  console.log(graph_zip);
+  // console.log(graph_zip);
 
-  let chartColors=twenty0neGuns();
+  let chartColors = twenty0neGuns();
   let myBarChart = document.getElementById('myBar').getContext('2d');
   // myChart.clear();
   // myChart=document.getElementById('myChart').getContext('2d');
@@ -429,51 +459,54 @@ function createGraphs() {
         data: data_for_graph(),
         backgroundColor: chartColors,
         borderColor: "black",
-      }]},
-      options: {
-        legend: {
-          display: false
-        }
+      }]
+    },
+    options: {
+      legend: {
+        display: false
       }
+    }
   });
 
 
 
-  console.log("Update Graph")
+  // console.log("Update Graph")
 
 }
 function updateChartData() {
   crimeBarChart.data.datasets[0].data = data_for_graph();
-  
+
   crimeBarChart.update();
-  crimePieChart.data.datasets[0].data=data_for_graph();
+  crimePieChart.data.datasets[0].data = data_for_graph();
   crimePieChart.update();
 }
-function upDateChartTitle(){
-  crimeBarChart.data.datasets[0].label=`Number of Crimes by Zip Code: ${graph_zip}`;
-  console.log(crimeBarChart.data.datasets[0].label)
+function upDateChartTitle() {
+  crimeBarChart.data.datasets[0].label = `Number of Crimes by Zip Code: ${graph_zip}`;
+  // console.log(crimeBarChart.data.datasets[0].label)
   crimeBarChart.update();
 }
 function data_for_graph() {
   let currentZipCrime;
-  if (graph_zip==="60607"){
-    currentZipCrime= crimeZip.filter((elmnt) => elmnt["Zip Code"] === graph_zip ||"60606" ||"60654"||"60661");
+  // console.log(graph_zip);
+  if (graph_zip === "60607") {
+
+    currentZipCrime = crimeZip.filter((elmnt) => elmnt.zip_code.toString() === (graph_zip || "60606" || "60654" || "60661"));
   }
-  else if (graph_zip==="60611"){
-    currentZipCrime=crimeZip.filter((elmnt) => elmnt["Zip Code"] === graph_zip ||"60601"||"60602"||"60603"||"60604"||"60605");
+  else if (graph_zip === "60611") {
+    currentZipCrime = crimeZip.filter((elmnt) => elmnt.zip_code.toString() === (graph_zip || "60601" || "60602" || "60603" || "60604" || "60605"));
   }
-  else{
-    currentZipCrime=crimeZip.filter((elmnt) => elmnt["Zip Code"] === graph_zip);
+  else {
+    currentZipCrime = crimeZip.filter((elmnt) => elmnt.zip_code.toString() === (graph_zip));
   }
-  console.log(currentZipCrime)
+  // console.log(currentZipCrime)
   let currentZipCrimeData = [];
   unique_crime.forEach(ucrime => {
     count = 0;
 
     currentZipCrime.forEach(x => {
-      console.log(ucrime);
-      console.log(x)
-      if (x["Crime"] === ucrime) {
+      // console.log(ucrime);
+      // console.log(x)
+      if (x["primary_type"] === ucrime) {
         count += 1;
       }
     });
@@ -488,6 +521,17 @@ function twenty0neGuns() {
     crimeColors.push(color());
   }
   return crimeColors;
+}
+$(".button").on('click', flyaway());
+function flyaway(where) {
+
+  var dest = [[33.7490, -84.3880], [34.12969738165099, -84.15845427143529]];
+  myMap.flyTo(dest[where], 12, {
+    animate: true,
+    duration: 5,
+    easeLinearity: 0.25,
+  });
+
 }
 
 
