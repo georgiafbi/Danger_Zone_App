@@ -73,8 +73,8 @@ function createMap(crimeSpots, heatMap, geoChicagoMap, geoGaMap) {
   var overlayMaps = {
     "Crime Locations": crimeSpots,
     "Crime Heat Map": heatMap,
-    "Zip Code Zones Chicago": geoChicagoMap,
-    "Zip Code Zones Atlanta": geoGaMap,
+    "Chicago Zip Code Zones": geoChicagoMap,
+    "Georgia Zip Code Zones": geoGaMap,
   };
   // Create the map object with options
   // Define a map object
@@ -150,10 +150,14 @@ function createZipCodeZones(zipCodeData, zipp) {
       popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip2">${"60611"}</h2>`;
     }
     else if (feature.properties[zipp] === "60666") {
-      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip3">${"60018"}</h2><button id="trvl-btn">Fly to Atlanta</button><button id= "rockmart-btn">Fly to Rockmart</button>`;
+      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip3">${"60018"}</h2><button id="trvl-btn">Fly to Atlanta</button><button id= "beach-btn">Fly to Driftwood Beach</button>`;
     }
     else if (feature.properties[zipp] === "30337") {
-      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip4">${"30337"}</h2><button id="trvl-btn">Fly to Chicago</button><button id= "rockmart-btn">Fly to Rockmart</button>`;
+      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip4">${"30337"}</h2><button id="trvl-btn">Fly to Chicago</button><button id= "beach-btn">Fly to Driftwood Beach</button>`;
+
+    }
+    else if (feature.properties[zipp] === "31527") {
+      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip4">${"31527"}</h2><button id="trvl-btn">Fly to Chicago</button><button id= "trvl2-btn">Fly to Atlanta</button>`;
 
     }
     else {
@@ -213,10 +217,22 @@ function createZipCodeZones(zipCodeData, zipp) {
             flyaway(2);
           }
         });
-        arunBtn = L.DomUtil.get('rockmart-btn');
-        L.DomEvent.addListener(arunBtn, 'click', function () {
+        
+        beachBtn = L.DomUtil.get('beach-btn');
+        L.DomEvent.addListener(beachBtn, 'click', function () {
           flyaway(1);
         });
+      }
+      else if (graph_zip === "31527"){
+        trvlBtn = L.DomUtil.get('trvl-btn');
+        L.DomEvent.addListener(trvlBtn, 'click', function () {
+          flyaway(2)
+        });
+        trvlBtn2 = L.DomUtil.get('trvl2-btn');
+        L.DomEvent.addListener(trvlBtn2, 'click', function () {
+          flyaway(0);
+        });
+
       }
 
     }
@@ -583,7 +599,7 @@ function twenty0neGuns() {
 //flys to new destination by updating mapbox center coords
 function flyaway(where) {
 
-  var dest = [[33.6407, -84.4277], [34.0026, -85.0416], [41.9803, -87.9090]];
+  var dest = [[33.6407, -84.4277], [31.1034, -81.4039], [41.9803, -87.9090]];
   myMap.flyTo(dest[where], 13.5, {
     animate: true,
     duration: 5,
