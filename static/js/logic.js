@@ -16,6 +16,18 @@ let myMap;
 
 
 
+
+// console.log(chicagoGeoJsonData);
+//write code to read the chicago_geojson.js file using d3.
+// call createZipCodeZones passing the data that is read from chicago_geojson.js file
+// d3.selectAll("#button").on("click",flyaway());
+
+d3.json(chicagoGeoJsonData).then(geoChicagoData => {
+  d3.json(georgiaGeoJsonData).then(geoGaData =>
+    createMarker(crimeZip, geoChicagoData, geoGaData))
+
+
+});
 // Create the createMap function
 function createMap(crimeSpots, heatMap, geoChicagoMap, geoGaMap) {
   // Create the tile layer that will be the background of our map
@@ -76,18 +88,6 @@ function createMap(crimeSpots, heatMap, geoChicagoMap, geoGaMap) {
     collapsed: true
   }).addTo(myMap);
 }
-// console.log(chicagoGeoJsonData);
-//write code to read the chicago_geojson.js file using d3.
-// call createZipCodeZones passing the data that is read from chicago_geojson.js file
-// d3.selectAll("#button").on("click",flyaway());
-
-d3.json(chicagoGeoJsonData).then(geoChicagoData => {
-  d3.json(georgiaGeoJsonData).then(geoGaData =>
-    createMarker(crimeZip, geoChicagoData, geoGaData))
-
-
-});
-
 
 // define createZipCodeZones function. The function takes one parameter.
 // name the parameter zipCodeData
@@ -101,7 +101,7 @@ function createZipCodeZones(zipCodeData, zipp) {
     filter: onFilter,
   };
 
-  // create geojsonLayer Object. pass Chicago Zip Code Data and options as the parameter
+  // create geojsonLayer Object. pass Chicago Zip Code Data and Georgia Zip Code Data and options as the parameter
   // add the geojson layer to the map
   if (zipp === "ZIP") {
     geojsonLayerChicago = L.geoJSON(zipCodeData, options);
@@ -137,7 +137,7 @@ function createZipCodeZones(zipCodeData, zipp) {
   }
 
   /************************************************* */
-
+  //used to build popups for each geoJsonLayer
   function onEachFeature(feature, layer) {
     //set the popup text. put the ZIP CODE inside h1 tag
     //console.log(feature)
@@ -176,7 +176,7 @@ function createZipCodeZones(zipCodeData, zipp) {
     function MouseOver(event) {
       layer = event.target;
       layer.setStyle({
-        fillOpacity: 1,
+        fillOpacity: 0.6,
       });
     }
 
@@ -231,7 +231,7 @@ function createMarker(response, geoJsonChicago, geoJsonGeorgia) {
   var crimeMarkers = [];
   var heatArray = [];
   primary_crime = [];
-
+  //loops through each element in result and builds arrays for markers and heat map layer
   response.forEach((r) => {
     try {
       let lat = r.latitude;
@@ -295,6 +295,7 @@ function createMarker(response, geoJsonChicago, geoJsonGeorgia) {
 
 }
 /*****************************************************************/
+//builds a list of icons to be used for specific crimes when the function is called
 function getIcon(key) {
   // Initialize an object containing icons for each layer group
   console.log(key);
@@ -308,7 +309,7 @@ function getIcon(key) {
     }),
     "LARCENY-NON VEHICLE": L.ExtraMarkers.icon({
       icon: "ion-sad-outline",
-      iconColor: "white",
+      iconColor: "black",
       markerColor: "orange",
       shape: "penta",
     }),
@@ -326,7 +327,7 @@ function getIcon(key) {
     }),
     "CRIMINAL DAMAGE": L.ExtraMarkers.icon({
       icon: "ion-alert-circled",
-      iconColor: "white",
+      iconColor: "yellow",
       markerColor: "red",
       shape: "penta",
     }),
@@ -343,26 +344,26 @@ function getIcon(key) {
       shape: "circle",
     }),
     "LARCENY-FROM VEHICLE": L.ExtraMarkers.icon({
-      icon: "ion-ios-home-outline",
-      iconColor: "white",
+      icon: "ion-android-car",
+      iconColor: "yellow",
       markerColor: "green",
       shape: "square",
     }),
     "BURGLARY": L.ExtraMarkers.icon({
-      icon: "ion-ios-home-outline",
-      iconColor: "white",
+      icon: "ion-social-octocat",
+      iconColor: "yellow",
       markerColor: "violet",
-      shape: "star",
+      shape: "circle",
     }),
     "OTHER OFFENSE": L.ExtraMarkers.icon({
       icon: "ion-help-circled",
-      iconColor: "white",
+      iconColor: "green",
       markerColor: "grey",
-      shape: "circle",
+      shape: "penta",
     }),
     "AGG ASSAULT": L.ExtraMarkers.icon({
-      icon: "ion-help-circled",
-      iconColor: "white",
+      icon: "ion-settings",
+      iconColor: "black",
       markerColor: "grey",
       shape: "circle",
     }),
@@ -380,8 +381,8 @@ function getIcon(key) {
     }),
     "CRIMINAL TRESPASS": L.ExtraMarkers.icon({
       icon: "ion-android-walk",
-      iconColor: "grey",
-      markerColor: "gold",
+      iconColor: "white",
+      markerColor: "orange",
       shape: "circle",
     }),
     "PUBLIC PEACE VIOLATION": L.ExtraMarkers.icon({
@@ -427,8 +428,8 @@ function getIcon(key) {
       shape: "circle",
     }),
     "OFFENSE INVOLVING CHILDREN": L.ExtraMarkers.icon({
-      icon: "ion-social-reddit-outline",
-      iconColor: "violet",
+      icon: "ion-social-reddit",
+      iconColor: "yellow",
       markerColor: "green",
       shape: "penta",
     }),
@@ -455,6 +456,7 @@ function getIcon(key) {
 }
 
 /*********************************************************/
+//function generates random color
 function color(ZIP) {
 
   const randomColor = "#" + Math.floor(Math.random() * 16777215).toString(16);
@@ -468,6 +470,7 @@ function color(ZIP) {
 
 
 /*********************************************************/
+//function is to build chart.js doughnut plot and bar plot
 function createGraphs() {
   // console.log(graph_zip);
 
@@ -525,6 +528,7 @@ function createGraphs() {
   // console.log("Update Graph")
 
 }
+//two functions to update chart data and chart titles
 function updateChartData() {
   crimeBarChart.data.datasets[0].data = data_for_graph();
 
@@ -537,6 +541,7 @@ function upDateChartTitle() {
   // console.log(crimeBarChart.data.datasets[0].label)
   crimeBarChart.update();
 }
+//isolates data to be used for the chart.js graphs
 function data_for_graph() {
   let currentZipCrime;
   // console.log(graph_zip);
@@ -567,6 +572,7 @@ function data_for_graph() {
   });
   return currentZipCrimeData;
 }
+//creates a list of unique colors for the length of the unique crime array
 function twenty0neGuns() {
   var crimeColors = [];
   for (var i = 0; i < unique_crime.length; i++) {
@@ -574,7 +580,7 @@ function twenty0neGuns() {
   }
   return crimeColors;
 }
-$(".button").on('click', flyaway());
+//flys to new destination by updating mapbox center coords
 function flyaway(where) {
 
   var dest = [[33.6407, -84.4277], [34.12969738165099, -84.15845427143529], [41.9803, -87.9090]];
@@ -585,6 +591,7 @@ function flyaway(where) {
   });
 
 }
+// extracts numbers from html content
 function extractContent(html) {
 
   var contentString = new DOMParser().parseFromString(html, "text/html").documentElement.textContent;
