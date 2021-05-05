@@ -1,5 +1,4 @@
 # Dependencies
-import requests
 from sqlalchemy import create_engine
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
@@ -8,19 +7,19 @@ from sqlalchemy import create_engine, func, inspect
 import json
 
 from flask import Flask, render_template, redirect, request, json
-import pandas as pd
+import pandas
 app = Flask(__name__)
 
 # Census API Key
 
 # Create engine using the `demographics.sqlite` database file
 def crime_dict():
-    pword = 'Baggins89'
-    connection_string = f"postgres:{pword}@localhost:5432/crime_db"
-    connected_engine=create_engine(f'postgresql://{connection_string}').connect()
-
-    chicago_crime_df=pd.read_sql_table('chicago',connected_engine).set_index('id')
-    atlanta_crime_df=pd.read_sql_table('atlanta',connected_engine).set_index('id')
+    # pword = ''
+    # connection_string = f"postgres:{pword}@localhost:5432/crime_db"
+    # connected_engine=create_engine(f'postgresql://{connection_string}').connect()
+    connected_engine=create_engine('sqlite:///crime_table_schema.sqlite').connect()
+    chicago_crime_df=pandas.read_sql_table('chicago',connected_engine).set_index('id')
+    atlanta_crime_df=pandas.read_sql_table('atlanta',connected_engine).set_index('id')
 
     json_result_chicago=chicago_crime_df.to_json(orient="table")
     json_result_atlanta=atlanta_crime_df.to_json(orient="table")
