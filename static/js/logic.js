@@ -150,10 +150,10 @@ function createZipCodeZones(zipCodeData, zipp) {
       popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip2">${"60611"}</h2>`;
     }
     else if (feature.properties[zipp] === "60666") {
-      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip3">${"60018"}</h2><button id="trvl-btn">Fly to Atlanta</button><button id= "arun-btn">Fly to Arun's</button>`;
+      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip3">${"60018"}</h2><button id="trvl-btn">Fly to Atlanta</button><button id= "rockmart-btn">Fly to Rockmart</button>`;
     }
     else if (feature.properties[zipp] === "30337") {
-      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip4">${"30337"}</h2><button id="trvl-btn">Fly to Chicago</button><button id= "arun-btn">Fly to Arun's</button>`;
+      popuptext = `<h3>ZIP CODE</h3><hr><h2 id="zip4">${"30337"}</h2><button id="trvl-btn">Fly to Chicago</button><button id= "rockmart-btn">Fly to Rockmart</button>`;
 
     }
     else {
@@ -213,7 +213,7 @@ function createZipCodeZones(zipCodeData, zipp) {
             flyaway(2);
           }
         });
-        arunBtn = L.DomUtil.get('arun-btn');
+        arunBtn = L.DomUtil.get('rockmart-btn');
         L.DomEvent.addListener(arunBtn, 'click', function () {
           flyaway(1);
         });
@@ -583,7 +583,7 @@ function twenty0neGuns() {
 //flys to new destination by updating mapbox center coords
 function flyaway(where) {
 
-  var dest = [[33.6407, -84.4277], [34.12969738165099, -84.15845427143529], [41.9803, -87.9090]];
+  var dest = [[33.6407, -84.4277], [34.0026, -85.0416], [41.9803, -87.9090]];
   myMap.flyTo(dest[where], 13.5, {
     animate: true,
     duration: 5,
