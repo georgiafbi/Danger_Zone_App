@@ -240,15 +240,17 @@ function createMarker(response, geoJsonChicago, geoJsonGeorgia) {
       // if (r.case_number == "JD473872" || "JD473929" ||  "JD474123"){
       //   console.log(r.zip_code);
       // }
-      var arrest = "Not in the Data";
-      if (r.arrest) {
-        if (r.arrest === 1) {
-          arrest = "Yes"
-        }
-        else if (r.arrest === 0) {
-          arrest = "No"
+      var arrest;
+      if (r.arrest>=0) {
+        arrest = "Yes"
+        if(!r.arrest){
+          arrest="No"
         }
       }
+      else {
+        arrest = "Not in the Data";
+      }
+
 
       console.log(r.zip_code)
       primary_crime.push(r.primary_type);
